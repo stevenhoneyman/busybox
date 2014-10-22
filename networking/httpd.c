@@ -1007,6 +1007,11 @@ static void send_headers(int responseNum)
 				content_gzip ? "Transfer-length:" : "Content-length:",
 				file_size
 		);
+ 
+#if ENABLE_FEATURE_HTTPD_NOCACHE
+		len += sprintf(iobuf + len,
+			"Cache-control: no-cache\r\n");
+#endif
 	}
 
 	if (content_gzip)

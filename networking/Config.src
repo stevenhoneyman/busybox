@@ -181,6 +181,17 @@ config FEATURE_HTTPD_RANGES
 	  "Range: bytes=NNN-[MMM]" header. Allows for resuming interrupted
 	  downloads, seeking in multimedia players etc.
 
+config FEATURE_HTTPD_NOCACHE
+	bool "Cache-control: no-cache"
+	default n
+	help
+	  Makes httpd mark all served documents as "Cache-control: no-cache".
+	  This can be useful for embedded applications where caching is
+	  very unlikely to be beneficial and very likely to result
+	  in confused users, e.g.: private network; single, local client;
+	  infrequent client->erver visits; small pages; almost all
+	  pages actually CGI scripts....
+
 config FEATURE_HTTPD_USE_SENDFILE
 	bool "Use sendfile system call"
 	default y
