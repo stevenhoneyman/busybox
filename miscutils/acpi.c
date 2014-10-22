@@ -113,7 +113,8 @@ int acpi_main(int argc UNUSED_PARAM, char **argv)
 			    cap = 100 * cur / max;
 		    }
 		    if (cap >= 0)
-			printf("Battery %d: %d%%\n", G.bat++, cap);
+			printf("Battery %d: %d%%\n", G.bat++,
+				(cap > 100 ? 100 : cap));
 
 		} else if ((opts & FLAG_a)
 			   && ((on = read_int_at(dfd, "online")) >= 0)) {
