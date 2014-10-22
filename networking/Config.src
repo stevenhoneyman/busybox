@@ -638,6 +638,12 @@ config FEATURE_IPCALC_LONG_OPTIONS
 	help
 	  Support long options for the ipcalc applet.
 
+config NETMSG
+	bool "netmsg"
+	default n
+	help
+	  simple program for sending udp broadcast messages
+
 config NETSTAT
 	bool "netstat"
 	default y
