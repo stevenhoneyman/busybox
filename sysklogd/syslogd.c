@@ -198,7 +198,7 @@ static const struct init_globals init_data = {
 	.s_semid = -1,
 	.shm_size = ((CONFIG_FEATURE_IPC_SYSLOG_BUFFER_SIZE)*1024), /* default shm size */
 	.SMwup = { {1, -1, IPC_NOWAIT} },
-	.SMwdn = { {0, 0}, {1, 0}, {1, +1} },
+	.SMwdn = { {0, 0, 0}, {1, 0, 0}, {1, +1, 0} },
 #endif
 };
 
