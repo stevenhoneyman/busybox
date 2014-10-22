@@ -721,7 +721,7 @@ int vi_main(int argc, char **argv)
 /* will also update current_filename */
 static int init_text_buffer(char *fn)
 {
-	int rc;
+	int rc = -1;
 
 	flush_undo_data();
 	modified_count = 0;
@@ -740,7 +740,8 @@ static int init_text_buffer(char *fn)
 		free(current_filename);
 		current_filename = xstrdup(fn);
 	}
-	rc = file_insert(fn, text, 1);
+	if (fn != NULL)
+		rc = file_insert(fn, text, 1);
 	if (rc < 0) {
 		// file doesnt exist. Start empty buf with dummy line
 		char_insert(text, '\n', NO_UNDO);
