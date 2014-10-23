@@ -385,12 +385,6 @@ config FEATURE_HDPARM_HDIO_GETSET_DMA
 	help
 	  Enables the 'hdparm -d' option to get/set using_dma flag.
 
-config LOCK
-	bool "lock"
-	default n
-	help
-	  Small utility for using locks in scripts
-
 config MAKEDEVS
 	bool "makedevs"
 	default y

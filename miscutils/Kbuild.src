@@ -28,7 +28,6 @@ lib-$(CONFIG_INOTIFYD)    += inotifyd.o
 lib-$(CONFIG_FEATURE_LAST_SMALL)+= last.o
 lib-$(CONFIG_FEATURE_LAST_FANCY)+= last_fancy.o
 lib-$(CONFIG_LESS)        += less.o
-lib-$(CONFIG_LOCK)        += lock.o
 lib-$(CONFIG_MAKEDEVS)    += makedevs.o
 lib-$(CONFIG_MAN)         += man.o
 lib-$(CONFIG_MICROCOM)    += microcom.o
