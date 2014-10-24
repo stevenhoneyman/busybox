@@ -9674,7 +9674,9 @@ preadfd(void)
 	if (!iflag || g_parsefile->pf_fd != STDIN_FILENO)
 		nr = nonblock_immune_read(g_parsefile->pf_fd, buf, IBUFSIZ - 1, /*loop_on_EINTR:*/ 1);
 	else {
+		int i;
 		int timeout = -1;
+		char *builtins[(ARRAY_SIZE(builtintab) + 1) * sizeof(char *)];
 # if ENABLE_ASH_IDLE_TIMEOUT
 		if (iflag) {
 			const char *tmout_var = lookupvar("TMOUT");
@@ -9687,9 +9689,13 @@ preadfd(void)
 # endif
 # if ENABLE_FEATURE_TAB_COMPLETION
 		line_input_state->path_lookup = pathval();
+		for (i = 0; i < ARRAY_SIZE(builtintab); i++)
+				builtins[i] = builtintab[i].name + 1;
+		builtins[i] = 0;
 # endif
 		reinit_unicode_for_ash();
-		nr = read_line_input(line_input_state, cmdedit_prompt, buf, IBUFSIZ, timeout);
+		nr = read_line_input(line_input_state, cmdedit_prompt, buf, IBUFSIZ, timeout, builtins);
+
 		if (nr == 0) {
 			/* Ctrl+C pressed */
 			if (trap[SIGINT]) {

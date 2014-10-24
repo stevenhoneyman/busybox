@@ -1505,7 +1505,7 @@ line_input_t *new_line_input_t(int flags) FAST_FUNC;
  * 0  on ctrl-C (the line entered is still returned in 'command'),
  * >0 length of input string, including terminating '\n'
  */
-int read_line_input(line_input_t *st, const char *prompt, char *command, int maxsize, int timeout) FAST_FUNC;
+int read_line_input(line_input_t *st, const char *prompt, char *command, int maxsize, int timeout, char *completions[]) FAST_FUNC;
 void show_history(const line_input_t *st) FAST_FUNC;
 # if ENABLE_FEATURE_EDITING_SAVE_ON_EXIT
 void save_history(line_input_t *st);

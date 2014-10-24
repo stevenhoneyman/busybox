@@ -746,7 +746,7 @@ static int path_parse(char ***p)
 /* Complete command, directory or file name.
  * Return the length of the prefix used for matching.
  */
-static NOINLINE unsigned complete_cmd_dir_file(const char *command, int type)
+static NOINLINE unsigned complete_cmd_dir_file(const char *command, int type, char **completions)
 {
 	char *path1[1];
 	char **paths = path1;
@@ -827,6 +827,13 @@ static NOINLINE unsigned complete_cmd_dir_file(const char *command, int type)
 		}
 		closedir(dir);
 	} /* for every path */
+
+	if (completions && type == FIND_EXE_ONLY) {
+		int len = strlen(command);
+		for(i = 0; completions[i]; i++)
+			if(!strncmp(command, completions[i], len))
+				add_match(xstrdup(completions[i]));
+	}
 
 	if (paths != path1) {
 		free(paths[0]); /* allocated memory is only in first member */
@@ -1070,7 +1077,7 @@ static char *quote_special_chars(char *found)
 }
 
 /* Do TAB completion */
-static NOINLINE void input_tab(smallint *lastWasTab)
+static NOINLINE void input_tab(smallint *lastWasTab, char **completions)
 {
 	char *chosen_match;
 	char *match_buf;
@@ -1134,7 +1141,7 @@ static NOINLINE void input_tab(smallint *lastWasTab)
 	/* If complete_username() did not match,
 	 * try to match a command in $PATH, or a directory, or a file */
 	if (!matches)
-		match_pfx_len = complete_cmd_dir_file(match_buf, find_type);
+		match_pfx_len = complete_cmd_dir_file(match_buf, find_type, completions);
 
 	/* Account for backslashes which will be inserted
 	 * by quote_special_chars() later */
@@ -2239,7 +2246,7 @@ static int32_t reverse_i_search(void)
  * 0  on ctrl-C (the line entered is still returned in 'command'),
  * >0 length of input string, including terminating '\n'
  */
-int FAST_FUNC read_line_input(line_input_t *st, const char *prompt, char *command, int maxsize, int timeout)
+int FAST_FUNC read_line_input(line_input_t *st, const char *prompt, char *command, int maxsize, int timeout, char **completions)
 {
 	int len;
 #if ENABLE_FEATURE_TAB_COMPLETION
@@ -2412,7 +2419,7 @@ int FAST_FUNC read_line_input(line_input_t *st, const char *prompt, char *comman
 			break;
 #if ENABLE_FEATURE_TAB_COMPLETION
 		case '\t':
-			input_tab(&lastWasTab);
+			input_tab(&lastWasTab, completions);
 			break;
 #endif
 		case CTRL('K'):
