@@ -32,6 +32,10 @@
 //usage:     "\n	conv=fsync	Physically write data out before finishing"
 //usage:     "\n	conv=swab	Swap every pair of bytes"
 //usage:	)
+//usage:	IF_FEATURE_DD_THIRD_STATUS_LINE(
+//usage:	 "\n	status=noxfer	Suppress transfer stats"
+//usage:	)
+//usage:	 "\n	status=none	Suppress all output"
 //usage:     "\n"
 //usage:     "\nN may be suffixed by c (1), w (2), b (512), kD (1000), k (1024), MD, M, GD, G"
 //usage:
@@ -69,6 +73,7 @@ struct globals {
 #if ENABLE_FEATURE_DD_THIRD_STATUS_LINE
 	unsigned long long total_bytes;
 	unsigned long long begin_time_us;
+	int noxfer;
 #endif
 } FIX_ALIASING;
 #define G (*(struct globals*)&bb_common_bufsiz1)
@@ -93,6 +98,9 @@ static void dd_output_status(int UNUSED_PARAM cur_signal)
 			G.out_full, G.out_part);
 
 #if ENABLE_FEATURE_DD_THIRD_STATUS_LINE
+	if (G.noxfer)
+		return;
+
 	fprintf(stderr, "%llu bytes (%sB) copied, ",
 			G.total_bytes,
 			/* show fractional digit, use suffixes */
@@ -159,9 +167,12 @@ int dd_main(int argc UNUSED_PARAM, char **argv)
 		/* end of conv flags */
 		FLAG_TWOBUFS = (1 << 5) * ENABLE_FEATURE_DD_IBS_OBS,
 		FLAG_COUNT   = 1 << 6,
+		FLAG_STATUS  = 1 << 7,
+		FLAG_STATUS_NONE = 1 << 7,
+		FLAG_STATUS_NOXFER = (1 << 8) * ENABLE_FEATURE_DD_THIRD_STATUS_LINE,
 	};
 	static const char keywords[] ALIGN1 =
-		"bs\0""count\0""seek\0""skip\0""if\0""of\0"
+		"bs\0""count\0""seek\0""skip\0""if\0""of\0""status\0"
 #if ENABLE_FEATURE_DD_IBS_OBS
 		"ibs\0""obs\0""conv\0"
 #endif
@@ -170,6 +181,12 @@ int dd_main(int argc UNUSED_PARAM, char **argv)
 	static const char conv_words[] ALIGN1 =
 		"notrunc\0""sync\0""noerror\0""fsync\0""swab\0";
 #endif
+	static const char status_words[] ALIGN1 =
+		"none\0"
+#if ENABLE_FEATURE_DD_THIRD_STATUS_LINE
+		"noxfer\0"
+#endif
+		;
 	enum {
 		OP_bs = 0,
 		OP_count,
@@ -177,6 +194,7 @@ int dd_main(int argc UNUSED_PARAM, char **argv)
 		OP_skip,
 		OP_if,
 		OP_of,
+		OP_status,
 #if ENABLE_FEATURE_DD_IBS_OBS
 		OP_ibs,
 		OP_obs,
@@ -312,6 +330,14 @@ int dd_main(int argc UNUSED_PARAM, char **argv)
 		}
 		if (what == OP_of) {
 			outfile = val;
+			/*continue;*/
+		}
+		if (what == OP_status) {
+			int n;
+			n = index_in_strings(status_words, val);
+			if (n < 0)
+				bb_error_msg_and_die(bb_msg_invalid_arg, val, "status");
+			flags |= FLAG_STATUS << n;
 			/*continue;*/
 		}
 	} /* end of "for (argv[i])" */
@@ -468,7 +494,12 @@ int dd_main(int argc UNUSED_PARAM, char **argv)
 
 	exitcode = EXIT_SUCCESS;
  out_status:
-	dd_output_status(0);
+#if ENABLE_FEATURE_DD_THIRD_STATUS_LINE
+	G.noxfer = !!(flags & FLAG_STATUS_NOXFER);
+#endif
+
+	if (!(flags & FLAG_STATUS_NONE))
+		dd_output_status(0);
 
 	if (ENABLE_FEATURE_CLEAN_UP) {
 		free(obuf);
