@@ -189,12 +189,20 @@ void FAST_FUNC read_leases(const char *file)
 		goto ret;
 
 	while (full_read(fd, &lease, sizeof(lease)) == sizeof(lease)) {
-//FIXME: what if it matches some static lease?
 		uint32_t y = ntohl(lease.lease_nip);
 		if (y >= server_config.start_ip && y <= server_config.end_ip) {
 			signed_leasetime_t expires = ntohl(lease.expires) - (signed_leasetime_t)time_passed;
+			uint32_t slnip;
+
 			if (expires <= 0)
 				continue;
+
+			// Check if there is a different static lease for this IP or MAC
+			slnip = get_static_nip_by_mac(server_config.static_leases, lease.lease_mac);
+			if ((slnip != 0 && slnip != lease.lease_nip)
+			 || (slnip == 0 && is_nip_reserved(server_config.static_leases, lease.lease_nip)))
+				continue;
+
 			/* NB: add_lease takes "relative time", IOW,
 			 * lease duration, not lease deadline. */
 			if (add_lease(lease.lease_mac, lease.lease_nip,
