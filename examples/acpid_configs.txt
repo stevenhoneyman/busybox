@@ -1,0 +1,18 @@
+(taken from the original patch sent to the ML by Souf Oued 2010-09-20)
+
+acpid.conf syntax is like this:
+
+KEY ACTION
+PWRF    /etc/acpi/power_btn.sh
+BAT0    /etc/acpi/battery.sh
+...
+
+acpi.map syntax is like this:
+
+#s_type    n_type(hex)    s_code            n_code     value    description
+EV_KEY    0x01                KEY_MUTE     113           1           
+button/mute MUTE 00000080 00000000
+EV_KEY    0x01                KEY_POWER   116           1           
+button/power PWRF 00000080 00000000
+...
+
