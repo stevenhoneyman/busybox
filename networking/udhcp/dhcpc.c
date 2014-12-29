@@ -1697,6 +1697,7 @@ int udhcpc_main(int argc UNUSED_PARAM, char **argv)
 		case RENEW_REQUESTED:
 		case REBINDING:
 			if (*message == DHCPACK) {
+				unsigned start;
 				uint32_t lease_seconds;
 				struct in_addr temp_addr;
 				uint8_t *temp;
@@ -1751,12 +1752,19 @@ int udhcpc_main(int argc UNUSED_PARAM, char **argv)
 				}
 #endif
 				/* enter bound state */
-				timeout = lease_seconds / 2;
 				temp_addr.s_addr = packet.yiaddr;
 				bb_info_msg("Lease of %s obtained, lease time %u",
 					inet_ntoa(temp_addr), (unsigned)lease_seconds);
 				requested_ip = packet.yiaddr;
+
+				start = monotonic_sec();
 				udhcp_run_script(&packet, state == REQUESTING ? "bound" : "renew");
+				already_waited_sec = (unsigned)monotonic_sec() - start;
+				timeout = lease_seconds / 2;
+				if ((unsigned)timeout < already_waited_sec) {
+					/* Something went wrong. Back to discover state */
+					timeout = already_waited_sec = 0;
+				}
 
 				state = BOUND;
 				change_listen_mode(LISTEN_NONE);
@@ -1774,7 +1782,7 @@ int udhcpc_main(int argc UNUSED_PARAM, char **argv)
 #endif
 				/* make future renew packets use different xid */
 				/* xid = random_xid(); ...but why bother? */
-				already_waited_sec = 0;
+
 				continue; /* back to main loop */
 			}
 			if (*message == DHCPNAK) {
