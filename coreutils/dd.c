@@ -77,17 +77,10 @@
 //usage:     "\n	conv=fsync	Physically write data out before finishing"
 //usage:     "\n	conv=swab	Swap every pair of bytes"
 //usage:	)
-<<<<<<< HEAD
-//usage:	IF_FEATURE_DD_THIRD_STATUS_LINE(
-//usage:	 "\n	status=noxfer	Suppress transfer stats"
-//usage:	)
-//usage:	 "\n	status=none	Suppress all output"
-=======
 //usage:	IF_FEATURE_DD_STATUS(
 //usage:     "\n	status=noxfer	Suppress rate output"
 //usage:     "\n	status=none	Suppress all output"
 //usage:	)
->>>>>>> upstream/master
 //usage:     "\n"
 //usage:     "\nN may be suffixed by c (1), w (2), b (512), kB (1000), k (1024), MB, M, GB, G"
 //usage:
@@ -130,7 +123,6 @@ struct globals {
 #if ENABLE_FEATURE_DD_THIRD_STATUS_LINE
 	unsigned long long total_bytes;
 	unsigned long long begin_time_us;
-	int noxfer;
 #endif
 	int flags;
 } FIX_ALIASING;
@@ -171,11 +163,6 @@ static void dd_output_status(int UNUSED_PARAM cur_signal)
 			G.out_full, G.out_part);
 
 #if ENABLE_FEATURE_DD_THIRD_STATUS_LINE
-<<<<<<< HEAD
-	if (G.noxfer)
-		return;
-
-=======
 # if ENABLE_FEATURE_DD_STATUS
 	if (G.flags & FLAG_STATUS_NOXFER) /* status=noxfer active? */
 		return;
@@ -183,7 +170,6 @@ static void dd_output_status(int UNUSED_PARAM cur_signal)
 	//So far we react to it (we print the stats),
 	//status=none only suppresses final, non-USR1 generated status message.
 # endif
->>>>>>> upstream/master
 	fprintf(stderr, "%llu bytes (%sB) copied, ",
 			G.total_bytes,
 			/* show fractional digit, use suffixes */
@@ -239,28 +225,8 @@ static bool write_and_stats(const void *buf, size_t len, size_t obs,
 int dd_main(int argc, char **argv) MAIN_EXTERNALLY_VISIBLE;
 int dd_main(int argc UNUSED_PARAM, char **argv)
 {
-<<<<<<< HEAD
-	enum {
-		/* Must be in the same order as OP_conv_XXX! */
-		/* (see "flags |= (1 << what)" below) */
-		FLAG_NOTRUNC = (1 << 0) * ENABLE_FEATURE_DD_IBS_OBS,
-		FLAG_SYNC    = (1 << 1) * ENABLE_FEATURE_DD_IBS_OBS,
-		FLAG_NOERROR = (1 << 2) * ENABLE_FEATURE_DD_IBS_OBS,
-		FLAG_FSYNC   = (1 << 3) * ENABLE_FEATURE_DD_IBS_OBS,
-		FLAG_SWAB    = (1 << 4) * ENABLE_FEATURE_DD_IBS_OBS,
-		/* end of conv flags */
-		FLAG_TWOBUFS = (1 << 5) * ENABLE_FEATURE_DD_IBS_OBS,
-		FLAG_COUNT   = 1 << 6,
-		FLAG_STATUS  = 1 << 7,
-		FLAG_STATUS_NONE = 1 << 7,
-		FLAG_STATUS_NOXFER = (1 << 8) * ENABLE_FEATURE_DD_THIRD_STATUS_LINE,
-	};
-	static const char keywords[] ALIGN1 =
-		"bs\0""count\0""seek\0""skip\0""if\0""of\0""status\0"
-=======
 	static const char keywords[] ALIGN1 =
 		"bs\0""count\0""seek\0""skip\0""if\0""of\0"IF_FEATURE_DD_STATUS("status\0")
->>>>>>> upstream/master
 #if ENABLE_FEATURE_DD_IBS_OBS
 		"ibs\0""obs\0""conv\0"
 #endif
@@ -269,19 +235,10 @@ int dd_main(int argc UNUSED_PARAM, char **argv)
 	static const char conv_words[] ALIGN1 =
 		"notrunc\0""sync\0""noerror\0""fsync\0""swab\0";
 #endif
-<<<<<<< HEAD
-	static const char status_words[] ALIGN1 =
-		"none\0"
-#if ENABLE_FEATURE_DD_THIRD_STATUS_LINE
-		"noxfer\0"
-#endif
-		;
-=======
 #if ENABLE_FEATURE_DD_STATUS
 	static const char status_words[] ALIGN1 =
 		"none\0""noxfer\0";
 #endif
->>>>>>> upstream/master
 	enum {
 		OP_bs = 0,
 		OP_count,
@@ -289,11 +246,7 @@ int dd_main(int argc UNUSED_PARAM, char **argv)
 		OP_skip,
 		OP_if,
 		OP_of,
-<<<<<<< HEAD
-		OP_status,
-=======
 		IF_FEATURE_DD_STATUS(OP_status,)
->>>>>>> upstream/master
 #if ENABLE_FEATURE_DD_IBS_OBS
 		OP_ibs,
 		OP_obs,
@@ -429,25 +382,16 @@ int dd_main(int argc UNUSED_PARAM, char **argv)
 			outfile = val;
 			/*continue;*/
 		}
-<<<<<<< HEAD
-=======
 #if ENABLE_FEATURE_DD_STATUS
->>>>>>> upstream/master
 		if (what == OP_status) {
 			int n;
 			n = index_in_strings(status_words, val);
 			if (n < 0)
 				bb_error_msg_and_die(bb_msg_invalid_arg, val, "status");
-<<<<<<< HEAD
-			flags |= FLAG_STATUS << n;
-			/*continue;*/
-		}
-=======
 			G.flags |= FLAG_STATUS << n;
 			/*continue;*/
 		}
 #endif
->>>>>>> upstream/master
 	} /* end of "for (argv[i])" */
 
 //XXX:FIXME for huge ibs or obs, malloc'ing them isn't the brightest idea ever
@@ -602,15 +546,7 @@ int dd_main(int argc UNUSED_PARAM, char **argv)
 
 	exitcode = EXIT_SUCCESS;
  out_status:
-<<<<<<< HEAD
-#if ENABLE_FEATURE_DD_THIRD_STATUS_LINE
-	G.noxfer = !!(flags & FLAG_STATUS_NOXFER);
-#endif
-
-	if (!(flags & FLAG_STATUS_NONE))
-=======
 	if (!ENABLE_FEATURE_DD_STATUS || !(G.flags & FLAG_STATUS_NONE))
->>>>>>> upstream/master
 		dd_output_status(0);
 
 	if (ENABLE_FEATURE_CLEAN_UP) {
