@@ -360,7 +360,7 @@ static void process_irq_counts(void)
 		}
 
 		name = p;
-		strchrnul(name, '\n')[0] = '\0';
+		chomp(p);
 		/* Save description of the interrupt */
 		if (nr >= 20000)
 			sprintf(irq_desc, "   <kernel IPI> : %s", name);
@@ -458,9 +458,9 @@ static NOINLINE int process_timer_stats(void)
 			//	func = "Load balancing tick";
 			//}
 
-			if (strncmp(func, "tick_nohz_", 10) == 0)
+			if (is_prefixed_with(func, "tick_nohz_"))
 				continue;
-			if (strncmp(func, "tick_setup_sched_timer", 20) == 0)
+			if (is_prefixed_with(func, "tick_setup_sched_timer"))
 				continue;
 			//if (strcmp(process, "powertop") == 0)
 			//	continue;
@@ -470,7 +470,7 @@ static NOINLINE int process_timer_stats(void)
 				process = idx < 2 ? "[kernel module]" : "<kernel core>";
 			}
 
-			strchrnul(p, '\n')[0] = '\0';
+			chomp(p);
 
 			// 46D\01136\0kondemand/1\0do_dbs_timer (delayed_work_timer_fn)
 			// ^          ^            ^

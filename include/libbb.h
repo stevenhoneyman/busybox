@@ -389,6 +389,7 @@ const char *bb_basename(const char *name) FAST_FUNC;
 /* NB: can violate const-ness (similarly to strchr) */
 char *last_char_is(const char *s, int c) FAST_FUNC;
 const char* endofname(const char *name) FAST_FUNC;
+char *is_prefixed_with(const char *string, const char *key) FAST_FUNC;
 
 int ndelay_on(int fd) FAST_FUNC;
 int ndelay_off(int fd) FAST_FUNC;
@@ -861,6 +862,8 @@ struct suffix_mult {
 };
 extern const struct suffix_mult bkm_suffixes[];
 #define km_suffixes (bkm_suffixes + 1)
+extern const struct suffix_mult cwbkMG_suffixes[];
+#define kMG_suffixes (cwbkMG_suffixes + 3)
 
 #include "xatonum.h"
 /* Specialized: */

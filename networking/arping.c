@@ -286,7 +286,6 @@ int arping_main(int argc UNUSED_PARAM, char **argv)
 	// Need to remove SUID_NEVER from applets.h for this to work
 	//xsetuid(getuid());
 
-	err_str = xasprintf("interface %s %%s", device);
 	{
 		unsigned opt;
 		char *str_timeout;
@@ -304,7 +303,7 @@ int arping_main(int argc UNUSED_PARAM, char **argv)
 	}
 
 	target = argv[optind];
-
+	err_str = xasprintf("interface %s %%s", device);
 	xfunc_error_retval = 2;
 
 	{
